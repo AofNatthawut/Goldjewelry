@@ -3,6 +3,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
 import React, { useEffect } from "react";
 import {
+    ActivityIndicator,
+    Alert,
     FlatList,
     StatusBar,
     StyleSheet,
@@ -20,7 +22,7 @@ export default function Favorites() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { addToCart } = useCart();
-  const { favorites, loadFavorites, toggleFavorite } = useFavorites();
+  const { favorites, loadFavorites, toggleFavorite, clearFavorites, loading } = useFavorites();
 
   useEffect(() => {
     loadFavorites();
@@ -28,6 +30,23 @@ export default function Favorites() {
 
   const handleProductPress = (product: any) => {
     (navigation as any).navigate("productDetail", { productId: product.id });
+  };
+
+  const handleClearAll = () => {
+    if (favorites.length === 0) return;
+    
+    Alert.alert(
+      "ยืนยันการลบ",
+      "คุณต้องการลบรายการที่ชอบทั้งหมดใช่หรือไม่?",
+      [
+        { text: "ยกเลิก", style: "cancel" },
+        { 
+          text: "ลบทั้งหมด", 
+          style: "destructive",
+          onPress: clearFavorites
+        }
+      ]
+    );
   };
 
   const renderEmpty = () => (
@@ -41,7 +60,7 @@ export default function Favorites() {
       </Text>
       <TouchableOpacity
         style={styles.exploreBtn}
-        onPress={() => (navigation as any).navigate("goldListStack")}
+        onPress={() => (navigation as any).navigate("goldlist")}
       >
         <Text style={styles.exploreBtnText}>ไปดูสินค้า</Text>
       </TouchableOpacity>
@@ -56,36 +75,62 @@ export default function Favorites() {
         style={[styles.header, { paddingTop: insets.top + 20 }]}
       >
         <View style={styles.headerContent}>
-          <View style={styles.heartIconCircle}>
-             <Ionicons name="heart" size={24} color={Colors.primary} />
+          <TouchableOpacity 
+            style={styles.backBtn}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="chevron-back" size={28} color="#fff" />
+          </TouchableOpacity>
+          
+          <View style={styles.titleContainer}>
+            <Text style={styles.headerTitle}>รายการที่ชอบ</Text>
+            <View style={styles.countBadge}>
+              <Text style={styles.countText}>{favorites.length} รายการ</Text>
+            </View>
           </View>
-          <Text style={styles.headerTitle}>รายการที่ชอบ</Text>
-          <View style={styles.countBadge}>
-            <Text style={styles.countText}>{favorites.length} รายการ</Text>
-          </View>
+
+          <TouchableOpacity 
+            style={[styles.clearBtn, favorites.length === 0 && { opacity: 0.3 }]}
+            onPress={handleClearAll}
+          >
+            <Ionicons name="trash-outline" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
       </LinearGradient>
 
-      <FlatList
-        data={favorites}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.itemWrapper}>
-            <ProductCard
-              product={item}
-              onPress={() => handleProductPress(item)}
-              onFavorite={() => toggleFavorite(item)}
-              onCartPress={() => addToCart(item)}
-            />
-          </View>
-        )}
-        contentContainerStyle={[
-          styles.listContent,
-          favorites.length === 0 && { flex: 1 },
-        ]}
-        ListEmptyComponent={renderEmpty}
-        showsVerticalScrollIndicator={false}
-      />
+      {loading && favorites.length === 0 ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={favorites}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
+          renderItem={({ item }) => (
+            <View style={styles.itemWrapper}>
+              <ProductCard
+                product={{
+                  ...item,
+                  isFavorite: true
+                }}
+                isGrid={true}
+                showDelete={true}
+                onPress={() => handleProductPress(item)}
+                onFavorite={() => toggleFavorite(item)}
+                onCartPress={() => addToCart(item)}
+              />
+            </View>
+          )}
+          contentContainerStyle={[
+            styles.listContent,
+            favorites.length === 0 && { flex: 1 },
+          ]}
+          ListEmptyComponent={renderEmpty}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 }
@@ -96,54 +141,72 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   header: {
-    paddingHorizontal: 25,
-    paddingBottom: 35,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
-    shadowColor: Colors.secondary,
+    paddingHorizontal: 20,
+    paddingBottom: 25,
+    borderBottomLeftRadius: 35,
+    borderBottomRightRadius: 35,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 8,
   },
   headerContent: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    justifyContent: 'space-between',
   },
-  heartIconCircle: {
-     width: 44,
-     height: 44,
-     borderRadius: 22,
-     backgroundColor: 'rgba(255,255,255,0.15)',
-     justifyContent: 'center',
-     alignItems: 'center',
-     borderWidth: 1,
-     borderColor: 'rgba(255,255,255,0.2)',
+  backBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  titleContainer: {
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: '900',
     color: '#fff',
     letterSpacing: -0.5,
   },
   countBadge: {
     backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    marginTop: 2,
   },
   countText: {
     color: 'rgba(255,255,255,0.9)',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '700',
   },
+  clearBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   listContent: {
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 110,
+    paddingHorizontal: 15,
+    paddingTop: 20,
+    paddingBottom: 160,
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
   },
   itemWrapper: {
-    marginBottom: 20,
+    width: '48.5%',
+    marginBottom: 5,
   },
   emptyContainer: {
     flex: 1,

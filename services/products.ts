@@ -121,12 +121,36 @@ export const products = [
     rating: 4.8,
     reviews: 89,
   },
+  // --- ทองคำแท่ง (Gold Bars) ---
+  {
+    id: "gb1",
+    name: "ทองคำแท่ง นน. 10 บาท มาตรฐาน สคบ.",
+    category: "goldbar",
+    price: 75000,
+    image: "https://filebroker-cdn.lazada.co.th/kf/S302dd5a5ff5d40c594b813b58585d496S.jpg",
+    description: "ทองคำแท่งบริสุทธิ์ 96.5% บล็อกมาตรฐาน ขายคืนได้ราคาสูงสุดตามประกาศสมาคม",
+    weight: "10 บาท",
+    rating: 5.0,
+    reviews: 210,
+  },
+  {
+    id: "gb2",
+    name: "ทองคำแท่ง นน. 1 บาท พรีเมียมการ์ด",
+    category: "goldbar",
+    price: 75000,
+    image: "https://st-th-1.byteark.com/assets.punpro.com/contents/i48808/1668413900286-314952935_6318462814856685_6747005919144338957_n.jpg",
+    description: "ทองคำแท่งแผ่นเล็ก ดีไซน์สวยในแพ็กเกจการ์ด เหมาะสำหรับมอบเป็นของขวัญหรือสะสม",
+    weight: "1 บาท",
+    rating: 4.9,
+    reviews: 145,
+  },
 ];
 
 export const categories = [
   { id: "all", name: "ทั้งหมด" },
-  { id: "rings", name: "แหวน" },
+  { id: "goldbar", name: "ทองคำแท่ง" },
   { id: "necklace", name: "สร้อยคอ" },
+  { id: "rings", name: "แหวน" },
   { id: "bracelet", name: "กำไล / เลส" },
   { id: "earring", name: "ต่างหู" },
   { id: "pendant", name: "จี้ / พระเลี่ยมทอง" },
@@ -198,10 +222,10 @@ export const sampleReviews = [
 ];
 
 export const storeInfo = {
-  name: "ห้างเพชรทองจินตนา (Jintana Gold & Diamond)",
-  phone: "035-202-899",
-  email: "contact@jintanagold.com",
-  address: "สี่แยกตลาดบ้านแพน อ.เสนา และ โครงการซิตี้เซ็นทรัล จ.อยุธยา",
-  openHours: "09:00 - 18:00 (จันทร์-อาทิตย์)",
-  description: "จำหน่ายทองคำแท้ 96.5% มาตรฐาน สคบ. ยินดีรับเลี่ยมพระและรับสั่งทำเครื่องประดับทุกชนิด",
+  name: "Aoffy Jewelry",
+  phone: "081-234-5678",
+  email: "contact@aoffyjewelry.com",
+  address: "Central Central, Bangkok, Thailand",
+  openHours: "10:30 - 20:00 (จันทร์-อาทิตย์)",
+  description: "ที่สุดแห่งเครื่องประดับทองคำแท้ 96.5% งานปราณีตมาตรฐานเยาวราช พร้อมบริการออมทองและสั่งทำเครื่องประดับทุกชนิด",
 };

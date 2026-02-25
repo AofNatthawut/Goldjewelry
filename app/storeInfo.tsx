@@ -5,10 +5,11 @@ import React from "react";
 import {
     Linking,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { storeInfo } from "../services/products";
@@ -17,6 +18,7 @@ import { Colors } from "../theme/colors";
 export default function StoreInfo() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+
   const handleCall = () => {
     Linking.openURL(`tel:${storeInfo.phone}`);
   };
@@ -26,133 +28,106 @@ export default function StoreInfo() {
   };
 
   const handleMap = () => {
-    (navigation as any).navigate("homeStack", { screen: "map" });
+    (navigation as any).navigate("map");
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
-      <LinearGradient colors={[Colors.secondary, "#5A0B0B"]} style={[styles.header, { paddingTop: insets.top + 40 }]}>
-        <Ionicons name="storefront" size={50} color="#fff" />
-        <Text style={styles.storeName}>{storeInfo.name}</Text>
-        <Text style={styles.storeDesc}>{storeInfo.description}</Text>
-      </LinearGradient>
-
-      {/* Contact Info */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>ติดต่อเรา</Text>
-
-        {/* Phone */}
-        <TouchableOpacity style={styles.contactItem} onPress={handleCall}>
-          <View style={styles.contactIcon}>
-            <Ionicons name="call" size={20} color={Colors.primary} />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        {/* Premium Header */}
+        <LinearGradient
+          colors={[Colors.secondary, "rgba(90, 11, 11, 0.8)", Colors.background]}
+          style={[styles.header, { paddingTop: insets.top + 60 }]}
+        >
+          <View style={styles.iconCircle}>
+            <Ionicons name="diamond" size={40} color={Colors.primary} />
           </View>
-          <View style={styles.contactInfo}>
-            <Text style={styles.contactLabel}>โทรศัพท์</Text>
-            <Text style={styles.contactValue}>{storeInfo.phone}</Text>
+          <Text style={styles.storeName}>{storeInfo.name}</Text>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>Authentic 96.5% Gold</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#ccc" />
-        </TouchableOpacity>
+          <Text style={styles.storeDesc}>{storeInfo.description}</Text>
+        </LinearGradient>
 
-        {/* Email */}
-        <TouchableOpacity style={styles.contactItem} onPress={handleEmail}>
-          <View style={styles.contactIcon}>
-            <Ionicons name="mail" size={20} color={Colors.primary} />
-          </View>
-          <View style={styles.contactInfo}>
-            <Text style={styles.contactLabel}>อีเมล</Text>
-            <Text style={styles.contactValue}>{storeInfo.email}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#ccc" />
-        </TouchableOpacity>
+        <View style={styles.content}>
+          {/* Quick Actions */}
+          <View style={styles.actionGrid}>
+            <TouchableOpacity style={styles.actionBtn} onPress={handleCall}>
+              <LinearGradient colors={['#2A1A1A', '#1A0A0A']} style={styles.actionIcon}>
+                <Ionicons name="call" size={24} color={Colors.primary} />
+              </LinearGradient>
+              <Text style={styles.actionLabel}>โทรออก</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.actionBtn} onPress={handleEmail}>
+              <LinearGradient colors={['#2A1A1A', '#1A0A1A']} style={styles.actionIcon}>
+                <Ionicons name="mail" size={24} color={Colors.primary} />
+              </LinearGradient>
+              <Text style={styles.actionLabel}>อีเมล</Text>
+            </TouchableOpacity>
 
-        {/* Address */}
-        <TouchableOpacity style={styles.contactItem} onPress={handleMap}>
-          <View style={styles.contactIcon}>
-            <Ionicons name="location" size={20} color={Colors.primary} />
+            <TouchableOpacity style={styles.actionBtn} onPress={handleMap}>
+              <LinearGradient colors={['#2A1A1A', '#1A0A1A']} style={styles.actionIcon}>
+                <Ionicons name="map" size={24} color={Colors.primary} />
+              </LinearGradient>
+              <Text style={styles.actionLabel}>แผนที่</Text>
+            </TouchableOpacity>
           </View>
-          <View style={[styles.contactInfo, { flex: 1 }]}>
-            <Text style={styles.contactLabel}>ที่อยู่</Text>
-            <Text style={styles.contactValue}>{storeInfo.address}</Text>
+
+          {/* Contact Details */}
+          <Text style={styles.sectionTitle}>ที่อยู่และเวลาทำการ</Text>
+          <View style={styles.detailCard}>
+             <View style={styles.detailItem}>
+                <Ionicons name="location-outline" size={20} color={Colors.primary} />
+                <View style={styles.detailTextContainer}>
+                  <Text style={styles.detailLabel}>สถานที่ตั้ง</Text>
+                  <Text style={styles.detailValue}>{storeInfo.address}</Text>
+                </View>
+             </View>
+             <View style={styles.detailDivider} />
+             <View style={styles.detailItem}>
+                <Ionicons name="time-outline" size={20} color={Colors.primary} />
+                <View style={styles.detailTextContainer}>
+                  <Text style={styles.detailLabel}>เวลาให้บริการ</Text>
+                  <Text style={styles.detailValue}>{storeInfo.openHours}</Text>
+                </View>
+             </View>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#ccc" />
-        </TouchableOpacity>
 
-        {/* Hours */}
-        <View style={styles.contactItem}>
-          <View style={styles.contactIcon}>
-            <Ionicons name="time" size={20} color={Colors.primary} />
+          {/* Branding Features */}
+          <Text style={styles.sectionTitle}>มาตรฐานความเหนือระดับ</Text>
+          <View style={styles.featureGrid}>
+             <View style={styles.featureItem}>
+               <Ionicons name="shield-checkmark" size={28} color={Colors.primary} />
+               <Text style={styles.featureTitle}>ของแท้ 100%</Text>
+               <Text style={styles.featureDesc}>ตรวจสอบได้ทุกชิ้น</Text>
+             </View>
+             <View style={styles.featureItem}>
+               <Ionicons name="ribbon" size={28} color={Colors.primary} />
+               <Text style={styles.featureTitle}>งานฝีมือ</Text>
+               <Text style={styles.featureDesc}>ปราณีต มาตรฐานสูง</Text>
+             </View>
           </View>
-          <View style={styles.contactInfo}>
-            <Text style={styles.contactLabel}>เวลาเปิดทำการ</Text>
-            <Text style={styles.contactValue}>{storeInfo.openHours}</Text>
-          </View>
-        </View>
-      </View>
 
-      {/* Action Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.actionButton} onPress={handleCall}>
-          <Ionicons name="call" size={20} color="#fff" />
-          <Text style={styles.actionButtonText}>โทร</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton} onPress={handleEmail}>
-          <Ionicons name="mail" size={20} color="#fff" />
-          <Text style={styles.actionButtonText}>ส่งข้อความ</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton} onPress={handleMap}>
-          <Ionicons name="map" size={20} color="#fff" />
-          <Text style={styles.actionButtonText}>แผนที่</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Features */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>ทำไมเลือกเรา</Text>
-
-        <View style={styles.featureItem}>
-          <View style={styles.featureIcon}>
-            <Ionicons
-              name="shield-checkmark"
-              size={24}
-              color={Colors.primary}
-            />
-          </View>
-          <View>
-            <Text style={styles.featureTitle}>ของแท้ 100%</Text>
-            <Text style={styles.featureDesc}>สินค้าแท้พร้อมใบการันตี</Text>
-          </View>
+          {/* Contact Button in Flow */}
+          <TouchableOpacity 
+            style={styles.contactBtnContainer}
+            onPress={handleCall}
+          >
+            <LinearGradient
+              colors={[Colors.primary, '#9A7E1C']}
+              style={styles.contactGradient}
+            >
+              <Ionicons name="logo-whatsapp" size={24} color="#fff" />
+              <Text style={styles.contactText}>ติดต่อพูดคุยกับเรา</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.featureItem}>
-          <View style={styles.featureIcon}>
-            <Ionicons name="pricetag" size={24} color={Colors.primary} />
-          </View>
-          <View>
-            <Text style={styles.featureTitle}>ราคาพิเศษ</Text>
-            <Text style={styles.featureDesc}>ราคากำลังแข่งขัน</Text>
-          </View>
-        </View>
-
-        <View style={styles.featureItem}>
-          <View style={styles.featureIcon}>
-            <Ionicons
-              name="checkmark-done-circle"
-              size={24}
-              color={Colors.primary}
-            />
-          </View>
-          <View>
-            <Text style={styles.featureTitle}>พร้อมบริการหลังการขาย</Text>
-            <Text style={styles.featureDesc}>ช่วยเหลือทุกเมื่อ</Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={{ height: 30 }} />
-    </ScrollView>
+        <View style={{ height: insets.bottom + 100 }} />
+      </ScrollView>
+    </View>
   );
 }
 
@@ -161,109 +136,177 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  scrollContainer: {
+    flex: 1,
+  },
   header: {
-    paddingVertical: 30,
-    paddingHorizontal: 20,
     alignItems: "center",
+    paddingBottom: 50,
+    paddingHorizontal: 30,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+  },
+  iconCircle: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   storeName: {
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 32,
+    fontWeight: "900",
     color: "#fff",
-    marginTop: 10,
+    marginBottom: 10,
+  },
+  badge: {
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    marginBottom: 15,
+  },
+  badgeText: {
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
   storeDesc: {
-    color: "#fff",
-    marginTop: 5,
-    fontSize: 12,
+    color: 'rgba(255,255,255,0.7)',
+    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 22,
   },
-  section: {
-    margin: 15,
+  content: {
+    paddingHorizontal: 25,
+    marginTop: -30,
+  },
+  actionGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.card,
+    borderRadius: 30,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  actionBtn: {
+    alignItems: 'center',
+    width: '30%',
+  },
+  actionIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+  },
+  actionLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: Colors.text,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: '900',
     color: Colors.text,
-    marginBottom: 12,
+    marginTop: 40,
+    marginBottom: 15,
   },
-  contactItem: {
-    flexDirection: "row",
-    alignItems: "center",
+  detailCard: {
     backgroundColor: Colors.card,
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 10,
-    gap: 12,
+    borderRadius: 25,
+    padding: 20,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  contactIcon: {
-    width: 45,
-    height: 45,
-    borderRadius: 50,
-    backgroundColor: `${Colors.primary}20`,
-    justifyContent: "center",
-    alignItems: "center",
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
   },
-  contactInfo: {
+  detailTextContainer: {
     flex: 1,
   },
-  contactLabel: {
-    fontSize: 12,
+  detailLabel: {
+    fontSize: 11,
     color: Colors.textSecondary,
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
-  contactValue: {
-    fontSize: 14,
-    fontWeight: "bold",
+  detailValue: {
+    fontSize: 15,
     color: Colors.text,
+    fontWeight: '800',
     marginTop: 2,
   },
-  buttonContainer: {
-    flexDirection: "row",
-    marginHorizontal: 15,
-    gap: 12,
+  detailDivider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: 15,
+    marginLeft: 35,
   },
-  actionButton: {
-    flex: 1,
-    backgroundColor: Colors.secondary,
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 5,
-  },
-  actionButtonText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "bold",
+  featureGrid: {
+    flexDirection: 'row',
+    gap: 15,
   },
   featureItem: {
-    flexDirection: "row",
+    flex: 1,
     backgroundColor: Colors.card,
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 10,
-    gap: 15,
-    alignItems: "center",
+    borderRadius: 25,
+    padding: 20,
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.border,
-  },
-  featureIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-    backgroundColor: `${Colors.primary}20`,
-    justifyContent: "center",
-    alignItems: "center",
   },
   featureTitle: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: '900',
     color: Colors.text,
+    marginTop: 10,
   },
   featureDesc: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.textSecondary,
-    marginTop: 2,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  contactBtnContainer: {
+    marginTop: 30,
+    marginBottom: 10,
+  },
+  contactGradient: {
+    flexDirection: 'row',
+    height: 60,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  contactText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
 });

@@ -1,20 +1,23 @@
 import { Ionicons } from "@expo/vector-icons";
 import {
-  BottomTabNavigationOptions,
-  createBottomTabNavigator,
+    BottomTabNavigationOptions,
+    createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { FavoritesProvider } from "../context/FavoritesContext";
 import { Colors } from "../theme/colors";
 
 // Import screens
+import Care from "./care";
 import Cart from "./cart";
 import Favorites from "./favorites";
 import GoldList from "./goldlist";
 import Home from "./index";
 import MapScreen from "./map";
 import ProductDetail from "./productDetail";
+import Savings from "./savings";
 import StoreInfo from "./storeInfo";
 
 const Tab = createBottomTabNavigator();
@@ -109,37 +112,41 @@ function TabNavigator() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1, backgroundColor: Colors.background }}>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="tabs" component={TabNavigator} />
-          <Stack.Screen
-            name="productDetail"
-            component={ProductDetail}
-            options={{
-              headerShown: true,
-              headerTitle: "รายละเอียดสินค้า",
-              headerBackTitle: "กลับ",
-              headerTintColor: Colors.primary,
-              headerStyle: { backgroundColor: Colors.background },
-              headerTitleStyle: { color: Colors.text },
-              headerShadowVisible: false,
-            }}
-          />
-          <Stack.Screen
-            name="map"
-            component={MapScreen}
-            options={{
-              headerShown: true,
-              headerTitle: "ค้นหาสาขา",
-              headerBackTitle: "กลับ",
-              headerTintColor: Colors.primary,
-              headerStyle: { backgroundColor: Colors.background },
-              headerTitleStyle: { color: Colors.text },
-              headerShadowVisible: false,
-            }}
-          />
-        </Stack.Navigator>
-      </View>
+      <FavoritesProvider>
+        <View style={{ flex: 1, backgroundColor: Colors.background }}>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="tabs" component={TabNavigator} />
+            <Stack.Screen
+              name="productDetail"
+              component={ProductDetail}
+              options={{
+                headerShown: true,
+                headerTitle: "รายละเอียดสินค้า",
+                headerBackTitle: "กลับ",
+                headerTintColor: Colors.primary,
+                headerStyle: { backgroundColor: Colors.background },
+                headerTitleStyle: { color: Colors.text },
+                headerShadowVisible: false,
+              }}
+            />
+            <Stack.Screen
+              name="map"
+              component={MapScreen}
+              options={{
+                headerShown: true,
+                headerTitle: "ค้นหาสาขา",
+                headerBackTitle: "กลับ",
+                headerTintColor: Colors.primary,
+                headerStyle: { backgroundColor: Colors.background },
+                headerTitleStyle: { color: Colors.text },
+                headerShadowVisible: false,
+              }}
+            />
+            <Stack.Screen name="savings" component={Savings} />
+            <Stack.Screen name="care" component={Care} />
+          </Stack.Navigator>
+        </View>
+      </FavoritesProvider>
     </SafeAreaProvider>
   );
 }

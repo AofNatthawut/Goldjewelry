@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
@@ -24,41 +25,53 @@ export default function Home() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { addToCart } = useCart();
-  const { toggleFavorite } = useFavorites();
+  const { toggleFavorite, isProductFavorite } = useFavorites();
   const [gold, setGold] = useState<any>(null);
   const [loadingGold, setLoadingGold] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    loadGold();
+    loadGold(false);
     loadFeatured();
+
+    // Polling Real-time Gold Price every 60 seconds (Silent)
+    const interval = setInterval(() => {
+      loadGold(true);
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  const loadGold = async () => {
+  const loadGold = async (silent = false) => {
     try {
-      setLoadingGold(true);
+      if (!silent) setLoadingGold(true);
       const data = await fetchGoldPrice();
       console.log("Gold data fetched:", data);
       
       if (data) {
-        setGold(data);
-      } else {
-        // Fallback fake data if API fails
+        // Only update if price changed to avoid redundant timestamp updates
+        setGold((prevGold: any) => {
+          if (!prevGold || prevGold.price !== data.price) {
+            return data;
+          }
+          return prevGold;
+        });
+      } else if (!silent) {
         setGold({
-          price: 34500, // Example fallback price
+          price: 34500,
           updated: "Offline - ไม่สามารถดึงข้อมูลได้",
         });
       }
     } catch (error) {
       console.error("Load gold error:", error);
     } finally {
-      setLoadingGold(false);
+      if (!silent) setLoadingGold(false);
     }
   };
 
   const loadFeatured = () => {
-    setFeaturedProducts(products.slice(0, 5));
+    setFeaturedProducts(products.slice(0, 6));
   };
 
   const onRefresh = async () => {
@@ -79,60 +92,111 @@ export default function Home() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
         }
-        contentContainerStyle={{ paddingBottom: 110 }}
+        contentContainerStyle={{ paddingBottom: 140 }}
       >
-        {/* Header Section - Store Name */}
-        <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-          <View>
-            <Text style={styles.headerSubtitle}>ยินดีต้อนรับสู่</Text>
+        {/* Premium Unified Header Section */}
+        <LinearGradient
+          colors={[Colors.secondary, "rgba(90, 11, 11, 0.8)", Colors.background]}
+          style={[styles.headerGradient, { paddingTop: insets.top + 50 }]}
+        >
+          <View style={styles.headerTop}>
+            <TouchableOpacity style={styles.cartIconBtn} onPress={() => (navigation as any).navigate("cart")}>
+               <Ionicons name="bag-handle" size={24} color={Colors.primary} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.headerContentCenter}>
+            <View style={styles.iconCircle}>
+              <Ionicons name="diamond" size={36} color={Colors.primary} />
+            </View>
             <View style={styles.storeTitleRow}>
               <Text style={styles.headerTitle}>Aoffy</Text>
               <Text style={[styles.headerTitle, { color: Colors.primary }]}> Jewelry</Text>
             </View>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>Authentic 96.5% Gold</Text>
+            </View>
+            <Text style={styles.headerSubtitleCentered}>Elite Selection & Fine Craftsmanship</Text>
           </View>
-          <TouchableOpacity style={styles.cartIconBtn} onPress={() => (navigation as any).navigate("cart")}>
-             <Ionicons name="bag-handle-outline" size={28} color={Colors.primary} />
-          </TouchableOpacity>
-        </View>
+        </LinearGradient>
 
         {/* Gold Price Section */}
         <View style={styles.priceSection}>
-           <Text style={styles.sectionTitle}>ราคาทองคำวันนี้</Text>
            {loadingGold ? (
              <ActivityIndicator color={Colors.primary} style={{ marginVertical: 20 }} />
            ) : (
-             <GoldPriceCard price={gold?.price} updated={gold?.updated} />
+             <GoldPriceCard 
+               price={gold?.price} 
+               updated={gold?.updated} 
+               spotUsd={gold?.spotUsd} 
+               jewelryPrice={gold?.jewelryPrice}
+             />
            )}
         </View>
 
-        {/* Improved Services Section */}
+        {/* Services Grid (Enhanced Premium Style) */}
         <View style={styles.servicesSection}>
-          <Text style={styles.sectionTitle}>บริการของเรา</Text>
+          <Text style={styles.sectionTitle}>บริการพรีเมียม</Text>
           <View style={styles.servicesGrid}>
-              <TouchableOpacity style={styles.serviceItem}>
-                <View style={[styles.serviceIconContainer, { backgroundColor: 'rgba(139, 0, 0, 0.1)' }]}>
-                   <Ionicons name="cart" size={26} color={Colors.secondary} />
+            <TouchableOpacity 
+              style={styles.serviceItem} 
+              onPress={() => (navigation as any).navigate("goldlist")}
+            >
+              <LinearGradient colors={['rgba(212, 175, 55, 0.15)', 'rgba(212, 175, 55, 0.05)']} style={styles.serviceCard}>
+                <View style={[styles.serviceIconCircle, { backgroundColor: 'rgba(212, 175, 55, 0.1)' }]}>
+                  <Ionicons name="cart" size={26} color={Colors.primary} />
                 </View>
-                <Text style={styles.serviceLabel}>สั่งซื้อทอง</Text>
-             </TouchableOpacity>
-              <TouchableOpacity style={styles.serviceItem}>
-                <View style={[styles.serviceIconContainer, { backgroundColor: 'rgba(212, 175, 55, 0.1)' }]}>
-                   <Ionicons name="wallet" size={26} color={Colors.primary} />
+                <View style={styles.serviceTextGroup}>
+                  <Text style={styles.serviceLabel}>สั่งซื้อทอง</Text>
+                  <Text style={styles.serviceSubLabel}>เลือกชมความงาม</Text>
                 </View>
-                <Text style={styles.serviceLabel}>ออมทอง</Text>
-             </TouchableOpacity>
-             <TouchableOpacity style={styles.serviceItem}>
-                <View style={[styles.serviceIconContainer, { backgroundColor: '#112211' }]}>
-                   <Ionicons name="sparkles" size={26} color="#4ADE80" />
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.serviceItem} 
+              onPress={() => (navigation as any).navigate("savings")}
+            >
+              <LinearGradient colors={['rgba(212, 175, 55, 0.15)', 'rgba(212, 175, 55, 0.05)']} style={styles.serviceCard}>
+                <View style={[styles.serviceIconCircle, { backgroundColor: 'rgba(212, 175, 55, 0.1)' }]}>
+                  <Ionicons name="wallet" size={26} color={Colors.primary} />
                 </View>
-                <Text style={styles.serviceLabel}>ขัดเงา</Text>
-             </TouchableOpacity>
-             <TouchableOpacity style={styles.serviceItem} onPress={() => (navigation as any).navigate("map")}>
-                <View style={[styles.serviceIconContainer, { backgroundColor: '#111122' }]}>
-                   <Ionicons name="location" size={26} color="#00BFFF" />
+                <View style={styles.serviceTextGroup}>
+                  <Text style={styles.serviceLabel}>ออมทอง</Text>
+                  <Text style={styles.serviceSubLabel}>สิทธิพิเศษสะสม</Text>
                 </View>
-                <Text style={styles.serviceLabel}>สาขา</Text>
-             </TouchableOpacity>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.serviceItem} 
+              onPress={() => (navigation as any).navigate("care")}
+            >
+              <LinearGradient colors={['rgba(212, 175, 55, 0.15)', 'rgba(212, 175, 55, 0.05)']} style={styles.serviceCard}>
+                <View style={[styles.serviceIconCircle, { backgroundColor: 'rgba(212, 175, 55, 0.1)' }]}>
+                  <Ionicons name="sparkles" size={26} color={Colors.primary} />
+                </View>
+                <View style={styles.serviceTextGroup}>
+                  <Text style={styles.serviceLabel}>Jewelry Care</Text>
+                  <Text style={styles.serviceSubLabel}>ดูแลเครื่องประดับ</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.serviceItem} 
+              onPress={() => (navigation as any).navigate("map")}
+            >
+              <LinearGradient colors={['rgba(212, 175, 55, 0.15)', 'rgba(212, 175, 55, 0.05)']} style={styles.serviceCard}>
+                <View style={[styles.serviceIconCircle, { backgroundColor: 'rgba(212, 175, 55, 0.1)' }]}>
+                  <Ionicons name="location" size={26} color={Colors.primary} />
+                </View>
+                <View style={styles.serviceTextGroup}>
+                  <Text style={styles.serviceLabel}>สาขา</Text>
+                  <Text style={styles.serviceSubLabel}>ค้นหาร้านใกล้คุณ</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -148,7 +212,10 @@ export default function Home() {
             {featuredProducts.map((product) => (
               <View key={product.id} style={styles.halfCard}>
                 <ProductCard
-                  product={product}
+                  product={{
+                    ...product,
+                    isFavorite: isProductFavorite(product.id)
+                  }}
                   onPress={() => handleProductPress(product)}
                   onFavorite={toggleFavorite}
                   onCartPress={() => addToCart(product)}
@@ -167,76 +234,130 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 25,
-    marginBottom: 30,
+  headerGradient: {
+    paddingBottom: 50,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    marginBottom: 20,
   },
-  headerSubtitle: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    marginBottom: 5,
+  headerTop: {
+    position: 'absolute',
+    top: 50,
+    right: 25,
+    zIndex: 10,
+  },
+  headerContentCenter: {
+    alignItems: 'center',
+    paddingHorizontal: 30,
+  },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   storeTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '900',
-    color: Colors.text,
+    color: '#fff',
+    letterSpacing: -1,
+  },
+  badge: {
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  badgeText: {
+    color: Colors.primary,
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  headerSubtitleCentered: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '700',
+    textAlign: 'center',
+    letterSpacing: 0.5,
   },
   cartIconBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: Colors.card,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   priceSection: {
-    marginBottom: 35,
+    marginBottom: 30,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: '900',
     color: Colors.text,
     paddingHorizontal: 25,
     marginBottom: 15,
   },
   servicesSection: {
     paddingHorizontal: 25,
-    marginBottom: 35,
+    marginBottom: 40,
   },
   servicesGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    gap: 15,
   },
   serviceItem: {
-    alignItems: 'center',
-    width: '22%',
+    width: '47%',
   },
-  serviceIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
+  serviceCard: {
+    padding: 18,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  serviceIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(212, 175, 55, 0.1)',
+  },
+  serviceTextGroup: {
+    marginTop: 4,
   },
   serviceLabel: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 15,
+    color: Colors.white,
+    fontWeight: '800',
+  },
+  serviceSubLabel: {
+    fontSize: 11,
     color: Colors.textSecondary,
+    marginTop: 2,
+    fontWeight: '600',
   },
   productsSection: {
     paddingHorizontal: 25,
@@ -245,12 +366,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 20,
   },
   seeAllText: {
-    fontSize: 14,
+    fontSize: 15,
     color: Colors.primary,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   productsGrid: {
     flexDirection: 'row',
@@ -262,4 +383,3 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
 });
-

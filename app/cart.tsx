@@ -1,10 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useState } from "react";
 import {
     Alert,
     FlatList,
     Image,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -17,6 +19,7 @@ import { Colors } from "../theme/colors";
 
 export default function Cart() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const { cartItems, loadCart, removeFromCart, totalPrice, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -92,10 +95,38 @@ export default function Cart() {
   );
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>ตะกร้าสินค้า</Text>
-      </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <LinearGradient
+        colors={[Colors.secondary, "#5A0B0B"]}
+        style={[styles.header, { paddingTop: insets.top + 20 }]}
+      >
+        <View style={styles.headerContent}>
+          <TouchableOpacity 
+            style={styles.backBtn}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="chevron-back" size={28} color="#fff" />
+          </TouchableOpacity>
+          
+          <View style={styles.titleContainer}>
+            <Text style={styles.headerTitle}>ตะกร้าสินค้า</Text>
+            <View style={styles.countBadge}>
+              <Text style={styles.countText}>{cartItems.length} รายการ</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity 
+            style={[styles.clearBtn, cartItems.length === 0 && { opacity: 0.3 }]}
+            onPress={() => cartItems.length > 0 && Alert.alert("ล้างตะกร้า", "ต้องการลบสินค้าทั้งหมดออกจากตะกร้าใช่หรือไม่?", [
+              { text: "ยกเลิก", style: "cancel" },
+              { text: "ล้างทั้งหมด", style: "destructive", onPress: clearCart }
+            ])}
+          >
+            <Ionicons name="trash-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
 
       <FlatList
         data={cartItems}
@@ -132,20 +163,59 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   header: {
-    padding: 20,
-    backgroundColor: Colors.background,
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    paddingHorizontal: 20,
+    paddingBottom: 25,
+    borderBottomLeftRadius: 35,
+    borderBottomRightRadius: 35,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  titleContainer: {
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: Colors.text,
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#fff',
+    letterSpacing: -0.5,
+  },
+  countBadge: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    marginTop: 2,
+  },
+  countText: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  clearBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 20,
   },
   listContent: {
     padding: 15,
-    paddingBottom: 150,
+    paddingBottom: 180,
   },
   cartItem: {
     flexDirection: "row",
